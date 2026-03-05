@@ -4,7 +4,6 @@ import {
   FlatList,
   Image,
   Pressable,
-  StyleSheet,
   Text,
   TextInput,
   View,
@@ -13,7 +12,6 @@ import { useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import { searchMulti, SearchResult, IMAGE_BASE } from '@/services/tmdb';
 import RatingBadge from '@/components/RatingBadge';
-import { colors, radius, spacing } from '@/constants/theme';
 import { useDebounce } from '@/utils/useDebounce';
 
 export default function SearchScreen() {
@@ -40,30 +38,30 @@ export default function SearchScreen() {
   };
 
   return (
-    <View style={styles.container}>
+    <View className="flex-1 bg-background">
       <TextInput
-        style={styles.input}
+        className="m-lg bg-search-bg rounded-md px-lg py-md text-text-primary text-[16px] border border-border"
         value={query}
         onChangeText={setQuery}
         placeholder="Search movies & TV shows..."
-        placeholderTextColor={colors.textMuted}
+        placeholderTextColor="#aaaaaa"
         returnKeyType="search"
         autoCorrect={false}
       />
 
       {loading && (
-        <ActivityIndicator color={colors.primary} style={{ marginTop: spacing.xl }} />
+        <ActivityIndicator color="#e50914" className="mt-xl" />
       )}
 
       {!loading && query.trim().length >= 2 && results.length === 0 && (
-        <View style={styles.empty}>
-          <Text style={styles.emptyText}>No results found for "{query}"</Text>
+        <View className="flex-1 items-center justify-center">
+          <Text className="text-text-muted text-[15px]">No results found for "{query}"</Text>
         </View>
       )}
 
       {!loading && query.trim().length < 2 && (
-        <View style={styles.empty}>
-          <Text style={styles.emptyText}>Type to search...</Text>
+        <View className="flex-1 items-center justify-center">
+          <Text className="text-text-muted text-[15px]">Type to search...</Text>
         </View>
       )}
 
@@ -78,20 +76,20 @@ export default function SearchScreen() {
           const type = item.media_type === 'movie' ? 'MOVIE' : 'TV';
 
           return (
-            <Pressable style={styles.row} onPress={() => handlePress(item)}>
-              <View style={styles.poster}>
+            <Pressable className="flex-row px-lg py-sm gap-md" onPress={() => handlePress(item)}>
+              <View className="w-[60px] h-[90px] rounded-sm overflow-hidden bg-card">
                 {uri ? (
-                  <Image source={{ uri }} style={styles.posterImg} resizeMode="cover" />
+                  <Image source={{ uri }} className="w-full h-full" resizeMode="cover" />
                 ) : (
-                  <View style={styles.noPoster} />
+                  <View className="flex-1 bg-card" />
                 )}
               </View>
-              <View style={styles.info}>
-                <Text style={styles.title} numberOfLines={2}>{title}</Text>
-                <Text style={styles.year}>{year}</Text>
-                <View style={styles.meta}>
-                  <View style={[styles.typeBadge, type === 'TV' ? styles.tvBadge : styles.movieBadge]}>
-                    <Text style={styles.typeText}>{type}</Text>
+              <View className="flex-1 justify-center gap-[4px]">
+                <Text className="text-text-primary text-[15px] font-semibold" numberOfLines={2}>{title}</Text>
+                <Text className="text-text-muted text-[13px]">{year}</Text>
+                <View className="flex-row items-center gap-sm mt-xs">
+                  <View className={`px-sm py-[2px] rounded-sm ${type === 'TV' ? 'bg-[#1565c0]' : 'bg-primary'}`}>
+                    <Text className="text-text-primary text-[10px] font-bold">{type}</Text>
                   </View>
                   {item.vote_average > 0 && <RatingBadge rating={item.vote_average} />}
                 </View>
@@ -103,87 +101,3 @@ export default function SearchScreen() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  input: {
-    margin: spacing.lg,
-    backgroundColor: colors.searchBg,
-    borderRadius: radius.md,
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.md,
-    color: colors.textPrimary,
-    fontSize: 16,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  empty: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  emptyText: {
-    color: colors.textMuted,
-    fontSize: 15,
-  },
-  row: {
-    flexDirection: 'row',
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.sm,
-    gap: spacing.md,
-  },
-  poster: {
-    width: 60,
-    height: 90,
-    borderRadius: radius.sm,
-    overflow: 'hidden',
-    backgroundColor: colors.card,
-  },
-  posterImg: {
-    width: '100%',
-    height: '100%',
-  },
-  noPoster: {
-    flex: 1,
-    backgroundColor: colors.card,
-  },
-  info: {
-    flex: 1,
-    justifyContent: 'center',
-    gap: 4,
-  },
-  title: {
-    color: colors.textPrimary,
-    fontSize: 15,
-    fontWeight: '600',
-  },
-  year: {
-    color: colors.textMuted,
-    fontSize: 13,
-  },
-  meta: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-    marginTop: spacing.xs,
-  },
-  typeBadge: {
-    paddingHorizontal: spacing.sm,
-    paddingVertical: 2,
-    borderRadius: radius.sm,
-  },
-  movieBadge: {
-    backgroundColor: colors.primary,
-  },
-  tvBadge: {
-    backgroundColor: '#1565c0',
-  },
-  typeText: {
-    color: colors.textPrimary,
-    fontSize: 10,
-    fontWeight: '700',
-  },
-});

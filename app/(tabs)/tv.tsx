@@ -1,16 +1,9 @@
 import React from 'react';
-import {
-  ActivityIndicator,
-  FlatList,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { ActivityIndicator, FlatList, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { getPopularTV } from '@/services/tmdb';
 import MediaCard from '@/components/MediaCard';
-import { colors, spacing } from '@/constants/theme';
 
 export default function TVScreen() {
   const router = useRouter();
@@ -27,19 +20,19 @@ export default function TVScreen() {
 
   if (isLoading) {
     return (
-      <View style={styles.center}>
-        <ActivityIndicator size="large" color={colors.primary} />
+      <View className="flex-1 bg-background items-center justify-center">
+        <ActivityIndicator size="large" color="#e50914" />
       </View>
     );
   }
 
   return (
     <FlatList
-      style={styles.list}
+      className="flex-1 bg-background"
       data={shows}
       keyExtractor={item => String(item.id)}
       numColumns={2}
-      contentContainerStyle={styles.content}
+      contentContainerClassName="px-sm pb-xl"
       renderItem={({ item }) => (
         <MediaCard
           title={item.name}
@@ -50,38 +43,17 @@ export default function TVScreen() {
         />
       )}
       ListHeaderComponent={
-        <Text style={styles.heading}>Popular TV Shows</Text>
+        <Text className="text-text-primary text-[22px] font-bold px-sm pt-lg pb-sm">
+          Popular TV Shows
+        </Text>
       }
       ListFooterComponent={
-        isFetchingNextPage ? <ActivityIndicator color={colors.primary} style={{ marginVertical: spacing.lg }} /> : null
+        isFetchingNextPage
+          ? <ActivityIndicator color="#e50914" className="my-lg" />
+          : null
       }
       onEndReached={() => { if (hasNextPage) fetchNextPage(); }}
       onEndReachedThreshold={0.5}
     />
   );
 }
-
-const styles = StyleSheet.create({
-  list: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  content: {
-    paddingHorizontal: spacing.sm,
-    paddingBottom: spacing.xl,
-  },
-  center: {
-    flex: 1,
-    backgroundColor: colors.background,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  heading: {
-    color: colors.textPrimary,
-    fontSize: 22,
-    fontWeight: '700',
-    paddingHorizontal: spacing.sm,
-    paddingTop: spacing.lg,
-    paddingBottom: spacing.sm,
-  },
-});

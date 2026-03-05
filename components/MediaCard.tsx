@@ -1,6 +1,5 @@
 import React from 'react';
-import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
-import { colors, radius, spacing } from '@/constants/theme';
+import { Image, Pressable, Text, View } from 'react-native';
 import { IMAGE_BASE } from '@/services/tmdb';
 import RatingBadge from './RatingBadge';
 
@@ -16,66 +15,25 @@ export default function MediaCard({ title, posterPath, rating, year, onPress }: 
   const uri = posterPath ? `${IMAGE_BASE}${posterPath}` : null;
 
   return (
-    <Pressable style={styles.card} onPress={onPress}>
-      <View style={styles.posterContainer}>
+    <Pressable className="flex-1 m-sm" onPress={onPress}>
+      <View className="rounded-md overflow-hidden bg-card aspect-[2/3]">
         {uri ? (
-          <Image source={{ uri }} style={styles.poster} resizeMode="cover" />
+          <Image source={{ uri }} className="w-full h-full" resizeMode="cover" />
         ) : (
-          <View style={styles.noPoster}>
-            <Text style={styles.noPosterText}>No Image</Text>
+          <View className="flex-1 items-center justify-center">
+            <Text className="text-text-muted text-[12px]">No Image</Text>
           </View>
         )}
         {rating > 0 && (
-          <View style={styles.badge}>
+          <View className="absolute top-sm right-sm">
             <RatingBadge rating={rating} />
           </View>
         )}
       </View>
-      <Text style={styles.title} numberOfLines={2}>{title}</Text>
-      {year ? <Text style={styles.year}>{year}</Text> : null}
+      <Text className="text-text-primary text-[13px] font-semibold mt-sm leading-[18px]" numberOfLines={2}>
+        {title}
+      </Text>
+      {year ? <Text className="text-text-muted text-[12px] mt-[2px]">{year}</Text> : null}
     </Pressable>
   );
 }
-
-const styles = StyleSheet.create({
-  card: {
-    flex: 1,
-    margin: spacing.sm,
-  },
-  posterContainer: {
-    borderRadius: radius.md,
-    overflow: 'hidden',
-    backgroundColor: colors.card,
-    aspectRatio: 2 / 3,
-  },
-  poster: {
-    width: '100%',
-    height: '100%',
-  },
-  noPoster: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  noPosterText: {
-    color: colors.textMuted,
-    fontSize: 12,
-  },
-  badge: {
-    position: 'absolute',
-    top: spacing.sm,
-    right: spacing.sm,
-  },
-  title: {
-    color: colors.textPrimary,
-    fontSize: 13,
-    fontWeight: '600',
-    marginTop: spacing.sm,
-    lineHeight: 18,
-  },
-  year: {
-    color: colors.textMuted,
-    fontSize: 12,
-    marginTop: 2,
-  },
-});

@@ -1,7 +1,7 @@
+import '../global.css';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { colors } from '@/constants/theme';
 
 const queryClient = new QueryClient();
 
@@ -11,10 +11,10 @@ export default function RootLayout() {
       <StatusBar style="light" />
       <Stack
         screenOptions={{
-          headerStyle: { backgroundColor: colors.background },
-          headerTintColor: colors.textPrimary,
+          headerStyle: { backgroundColor: '#0d0d0d' },
+          headerTintColor: '#ffffff',
           headerTitleStyle: { fontWeight: '700' },
-          contentStyle: { backgroundColor: colors.background },
+          contentStyle: { backgroundColor: '#0d0d0d' },
         }}
       >
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />

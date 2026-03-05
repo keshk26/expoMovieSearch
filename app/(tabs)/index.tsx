@@ -1,8 +1,7 @@
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
-import { ActivityIndicator, FlatList, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, FlatList, Text, View } from 'react-native';
 import MediaCard from '@/components/MediaCard';
-import { colors, spacing } from '@/constants/theme';
 import { getTrendingMovies } from '@/services/tmdb';
 
 export default function MoviesScreen() {
@@ -26,19 +25,19 @@ export default function MoviesScreen() {
 
   if (isPending) {
     return (
-      <View style={styles.center}>
-        <ActivityIndicator size="large" color={colors.primary} />
+      <View className="flex-1 bg-background items-center justify-center">
+        <ActivityIndicator size="large" color="#e50914" />
       </View>
     );
   }
 
   return (
     <FlatList
-      style={styles.list}
+      className="flex-1 bg-background"
       data={movies}
       keyExtractor={item => String(item.id)}
       numColumns={2}
-      contentContainerStyle={styles.content}
+      contentContainerClassName="px-sm pb-xl"
       renderItem={({ item }) => (
         <MediaCard
           title={item.title}
@@ -48,10 +47,14 @@ export default function MoviesScreen() {
           onPress={() => router.push(`/movie/${item.id}`)}
         />
       )}
-      ListHeaderComponent={<Text style={styles.heading}>Trending Today</Text>}
+      ListHeaderComponent={
+        <Text className="text-text-primary text-[22px] font-bold px-sm pt-lg pb-sm">
+          Trending Today
+        </Text>
+      }
       ListFooterComponent={
         isFetchingNextPage
-          ? <ActivityIndicator color={colors.primary} style={{ marginVertical: spacing.lg }} />
+          ? <ActivityIndicator color="#e50914" className="my-lg" />
           : null
       }
       onEndReached={() => { if (hasNextPage) fetchNextPage(); }}
@@ -59,28 +62,3 @@ export default function MoviesScreen() {
     />
   );
 }
-
-const styles = StyleSheet.create({
-  list: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  content: {
-    paddingHorizontal: spacing.sm,
-    paddingBottom: spacing.xl,
-  },
-  center: {
-    flex: 1,
-    backgroundColor: colors.background,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  heading: {
-    color: colors.textPrimary,
-    fontSize: 22,
-    fontWeight: '700',
-    paddingHorizontal: spacing.sm,
-    paddingTop: spacing.lg,
-    paddingBottom: spacing.sm,
-  },
-});

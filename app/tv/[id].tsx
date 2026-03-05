@@ -3,7 +3,6 @@ import {
   ActivityIndicator,
   Image,
   ScrollView,
-  StyleSheet,
   Text,
   View,
 } from 'react-native';
@@ -11,7 +10,6 @@ import { useLocalSearchParams, Stack } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import { getTVDetail, BACKDROP_BASE, IMAGE_BASE } from '@/services/tmdb';
 import RatingBadge from '@/components/RatingBadge';
-import { colors, radius, spacing } from '@/constants/theme';
 
 export default function TVDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -22,18 +20,18 @@ export default function TVDetailScreen() {
 
   if (isLoading) {
     return (
-      <View style={styles.center}>
+      <View className="flex-1 bg-background items-center justify-center">
         <Stack.Screen options={{ title: '' }} />
-        <ActivityIndicator size="large" color={colors.primary} />
+        <ActivityIndicator size="large" color="#e50914" />
       </View>
     );
   }
 
   if (isError || !show) {
     return (
-      <View style={styles.center}>
+      <View className="flex-1 bg-background items-center justify-center">
         <Stack.Screen options={{ title: 'Error' }} />
-        <Text style={styles.errorText}>Failed to load TV show.</Text>
+        <Text className="text-text-muted text-[16px]">Failed to load TV show.</Text>
       </View>
     );
   }
@@ -45,23 +43,27 @@ export default function TVDetailScreen() {
   const seasons = show.number_of_seasons;
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+    <ScrollView className="flex-1 bg-background" contentContainerClassName="pb-xxl">
       <Stack.Screen options={{ title: show.name, headerTransparent: false, headerBackTitle: 'Back' }} />
 
       {backdropUri && (
-        <Image source={{ uri: backdropUri }} style={styles.backdrop} resizeMode="cover" />
+        <Image source={{ uri: backdropUri }} className="w-full h-[220px]" resizeMode="cover" />
       )}
 
-      <View style={styles.body}>
-        <View style={styles.header}>
+      <View className="p-lg">
+        <View className="flex-row gap-lg -mt-[60px]">
           {posterUri && (
-            <Image source={{ uri: posterUri }} style={styles.poster} resizeMode="cover" />
+            <Image
+              source={{ uri: posterUri }}
+              className="w-[110px] h-[165px] rounded-md border-2 border-border"
+              resizeMode="cover"
+            />
           )}
-          <View style={styles.meta}>
-            <Text style={styles.title}>{show.name}</Text>
-            {year && <Text style={styles.year}>{year}</Text>}
+          <View className="flex-1 pt-[70px] gap-sm">
+            <Text className="text-text-primary text-[20px] font-bold leading-[26px]">{show.name}</Text>
+            {year && <Text className="text-text-muted text-[14px]">{year}</Text>}
             {seasons != null && (
-              <Text style={styles.detail}>
+              <Text className="text-text-muted text-[13px]">
                 {seasons} Season{seasons !== 1 ? 's' : ''}
               </Text>
             )}
@@ -70,14 +72,14 @@ export default function TVDetailScreen() {
         </View>
 
         {show.tagline ? (
-          <Text style={styles.tagline}>"{show.tagline}"</Text>
+          <Text className="text-text-muted text-[14px] italic mt-lg">"{show.tagline}"</Text>
         ) : null}
 
         {genres ? (
-          <View style={styles.genreRow}>
+          <View className="flex-row flex-wrap gap-sm mt-md">
             {show.genres?.map(g => (
-              <View key={g.id} style={styles.genreBadge}>
-                <Text style={styles.genreText}>{g.name}</Text>
+              <View key={g.id} className="bg-card rounded-sm px-md py-xs border border-border">
+                <Text className="text-text-primary text-[12px]">{g.name}</Text>
               </View>
             ))}
           </View>
@@ -85,105 +87,11 @@ export default function TVDetailScreen() {
 
         {show.overview ? (
           <>
-            <Text style={styles.sectionLabel}>Overview</Text>
-            <Text style={styles.overview}>{show.overview}</Text>
+            <Text className="text-text-primary text-[16px] font-bold mt-xl mb-sm">Overview</Text>
+            <Text className="text-text-muted text-[14px] leading-[22px]">{show.overview}</Text>
           </>
         ) : null}
       </View>
     </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  content: {
-    paddingBottom: spacing.xxl,
-  },
-  center: {
-    flex: 1,
-    backgroundColor: colors.background,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  errorText: {
-    color: colors.textMuted,
-    fontSize: 16,
-  },
-  backdrop: {
-    width: '100%',
-    height: 220,
-  },
-  body: {
-    padding: spacing.lg,
-  },
-  header: {
-    flexDirection: 'row',
-    gap: spacing.lg,
-    marginTop: -60,
-  },
-  poster: {
-    width: 110,
-    height: 165,
-    borderRadius: radius.md,
-    borderWidth: 2,
-    borderColor: colors.border,
-  },
-  meta: {
-    flex: 1,
-    paddingTop: 70,
-    gap: spacing.sm,
-  },
-  title: {
-    color: colors.textPrimary,
-    fontSize: 20,
-    fontWeight: '700',
-    lineHeight: 26,
-  },
-  year: {
-    color: colors.textMuted,
-    fontSize: 14,
-  },
-  detail: {
-    color: colors.textMuted,
-    fontSize: 13,
-  },
-  tagline: {
-    color: colors.textMuted,
-    fontSize: 14,
-    fontStyle: 'italic',
-    marginTop: spacing.lg,
-  },
-  genreRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: spacing.sm,
-    marginTop: spacing.md,
-  },
-  genreBadge: {
-    backgroundColor: colors.card,
-    borderRadius: radius.sm,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.xs,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  genreText: {
-    color: colors.textPrimary,
-    fontSize: 12,
-  },
-  sectionLabel: {
-    color: colors.textPrimary,
-    fontSize: 16,
-    fontWeight: '700',
-    marginTop: spacing.xl,
-    marginBottom: spacing.sm,
-  },
-  overview: {
-    color: colors.textMuted,
-    fontSize: 14,
-    lineHeight: 22,
-  },
-});
