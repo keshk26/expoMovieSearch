@@ -17,6 +17,8 @@ A React Native app built with Expo for browsing trending movies, popular TV show
 - **[TanStack Query](https://tanstack.com/query)** (React Query) — server state management and caching
 - **[TMDB API](https://developer.themoviedb.org/docs)** v3 — movie and TV data
 - **TypeScript** — strict type safety throughout
+- **[Jest](https://jestjs.io/)** + **[React Native Testing Library](https://callstack.github.io/react-native-testing-library/)** — unit and integration testing
+- **[MSW](https://mswjs.io/)** (Mock Service Worker) v2 — API mocking for tests
 
 ## Getting Started
 
