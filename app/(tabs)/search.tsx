@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
@@ -10,41 +10,26 @@ import {
   View,
 } from 'react-native';
 import { useRouter } from 'expo-router';
+import { useQuery } from '@tanstack/react-query';
 import { searchMulti, SearchResult, IMAGE_BASE } from '@/services/tmdb';
 import RatingBadge from '@/components/RatingBadge';
 import { colors, radius, spacing } from '@/constants/theme';
+import { useDebounce } from '@/utils/useDebounce';
 
 export default function SearchScreen() {
   const router = useRouter();
   const [query, setQuery] = useState('');
-  const [results, setResults] = useState<SearchResult[]>([]);
-  const [loading, setLoading] = useState(false);
-  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const debouncedQuery = useDebounce(query, 350);
+  const trimmed = debouncedQuery.trim();
 
-  useEffect(() => {
-    if (debounceRef.current) clearTimeout(debounceRef.current);
+  const { data, isFetching: loading } = useQuery({
+    queryKey: ['search', trimmed],
+    queryFn: () => searchMulti(trimmed),
+    enabled: trimmed.length >= 2,
+    select: data => data.results.filter(r => r.media_type !== 'person'),
+  });
 
-    if (query.trim().length < 2) {
-      setResults([]);
-      return;
-    }
-
-    debounceRef.current = setTimeout(async () => {
-      setLoading(true);
-      try {
-        const data = await searchMulti(query.trim());
-        setResults(data.results.filter(r => r.media_type !== 'person'));
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    }, 350);
-
-    return () => {
-      if (debounceRef.current) clearTimeout(debounceRef.current);
-    };
-  }, [query]);
+  const results: SearchResult[] = data ?? [];
 
   const handlePress = (item: SearchResult) => {
     if (item.media_type === 'movie') {

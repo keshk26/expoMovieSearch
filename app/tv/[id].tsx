@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import {
   ActivityIndicator,
   Image,
@@ -8,24 +8,19 @@ import {
   View,
 } from 'react-native';
 import { useLocalSearchParams, Stack } from 'expo-router';
-import { getTVDetail, TVShow, BACKDROP_BASE, IMAGE_BASE } from '@/services/tmdb';
+import { useQuery } from '@tanstack/react-query';
+import { getTVDetail, BACKDROP_BASE, IMAGE_BASE } from '@/services/tmdb';
 import RatingBadge from '@/components/RatingBadge';
 import { colors, radius, spacing } from '@/constants/theme';
 
 export default function TVDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const [show, setShow] = useState<TVShow | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
+  const { data: show, isLoading, isError } = useQuery({
+    queryKey: ['tv', id],
+    queryFn: () => getTVDetail(Number(id)),
+  });
 
-  useEffect(() => {
-    getTVDetail(Number(id))
-      .then(setShow)
-      .catch(() => setError(true))
-      .finally(() => setLoading(false));
-  }, [id]);
-
-  if (loading) {
+  if (isLoading) {
     return (
       <View style={styles.center}>
         <Stack.Screen options={{ title: '' }} />
@@ -34,7 +29,7 @@ export default function TVDetailScreen() {
     );
   }
 
-  if (error || !show) {
+  if (isError || !show) {
     return (
       <View style={styles.center}>
         <Stack.Screen options={{ title: 'Error' }} />
@@ -51,7 +46,7 @@ export default function TVDetailScreen() {
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <Stack.Screen options={{ title: show.name, headerTransparent: false }} />
+      <Stack.Screen options={{ title: show.name, headerTransparent: false, headerBackTitle: 'Back' }} />
 
       {backdropUri && (
         <Image source={{ uri: backdropUri }} style={styles.backdrop} resizeMode="cover" />

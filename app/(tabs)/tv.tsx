@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React from 'react';
 import {
   ActivityIndicator,
   FlatList,
@@ -7,44 +7,25 @@ import {
   View,
 } from 'react-native';
 import { useRouter } from 'expo-router';
-import { getPopularTV, TVShow } from '@/services/tmdb';
+import { useInfiniteQuery } from '@tanstack/react-query';
+import { getPopularTV } from '@/services/tmdb';
 import MediaCard from '@/components/MediaCard';
 import { colors, spacing } from '@/constants/theme';
 
 export default function TVScreen() {
   const router = useRouter();
-  const [shows, setShows] = useState<TVShow[]>([]);
-  const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [loading, setLoading] = useState(true);
-  const [loadingMore, setLoadingMore] = useState(false);
 
-  const fetchShows = useCallback(async (p: number) => {
-    try {
-      const data = await getPopularTV(p);
-      setShows(prev => p === 1 ? data.results : [...prev, ...data.results]);
-      setTotalPages(data.total_pages);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-      setLoadingMore(false);
-    }
-  }, []);
+  const { data, isLoading, isFetchingNextPage, hasNextPage, fetchNextPage } = useInfiniteQuery({
+    queryKey: ['popular-tv'],
+    queryFn: ({ pageParam }) => getPopularTV(pageParam),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage, _, lastPageParam) =>
+      lastPageParam < lastPage.total_pages ? lastPageParam + 1 : undefined,
+  });
 
-  useEffect(() => {
-    fetchShows(1);
-  }, [fetchShows]);
+  const shows = data?.pages.flatMap(p => p.results) ?? [];
 
-  const loadMore = () => {
-    if (loadingMore || page >= totalPages) return;
-    const next = page + 1;
-    setPage(next);
-    setLoadingMore(true);
-    fetchShows(next);
-  };
-
-  if (loading) {
+  if (isLoading) {
     return (
       <View style={styles.center}>
         <ActivityIndicator size="large" color={colors.primary} />
@@ -72,9 +53,9 @@ export default function TVScreen() {
         <Text style={styles.heading}>Popular TV Shows</Text>
       }
       ListFooterComponent={
-        loadingMore ? <ActivityIndicator color={colors.primary} style={{ marginVertical: spacing.lg }} /> : null
+        isFetchingNextPage ? <ActivityIndicator color={colors.primary} style={{ marginVertical: spacing.lg }} /> : null
       }
-      onEndReached={loadMore}
+      onEndReached={() => { if (hasNextPage) fetchNextPage(); }}
       onEndReachedThreshold={0.5}
     />
   );
